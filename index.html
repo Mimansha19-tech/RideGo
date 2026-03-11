@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideGo - India's Own Ride</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            /* BACKGROUND: Bandra-Worli Sea Link (Symbol of Modern India) */
+            background: url('https://images.unsplash.com/photo-1566552881560-0be862a7c445?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Gradient Overlay to make text readable and add a "Warm" Indian vibe */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(255, 153, 51, 0.2));
+            /* Subtle Saffron tint */
+        }
+
+        /* Navbar */
+        nav {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 25px 50px;
+            display: flex;
+            justify-content: space-between;
+            /* Logo on left, links on right */
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo span {
+            color: #facc15;
+        }
+
+        /* Yellow accent for 'Go' */
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #facc15;
+        }
+
+        /* GLASSMORPHISM CARD */
+        .glass-card {
+            position: relative;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.1);
+            /* Very transparent */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 50px 70px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 650px;
+            animation: slideUp 1.2s ease-out;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            /* Massive Title */
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 span {
+            color: #facc15;
+            /* RideGo Yellow */
+        }
+
+        .quote {
+            font-size: 1.4rem;
+            color: #f0f0f0;
+            margin-bottom: 40px;
+            font-weight: 400;
+            font-style: italic;
+            position: relative;
+        }
+
+        /* Decorative lines for the quote */
+        .quote::before,
+        .quote::after {
+            content: "—";
+            color: #facc15;
+            margin: 0 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 50px;
+            background: #facc15;
+            color: #000;
+            font-weight: 700;
+            font-size: 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(250, 204, 21, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            background-color: #fff;
+            box-shadow: 0 15px 35px rgba(255, 255, 255, 0.4);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"></div>
+
+    <nav>
+        <div class="logo">Ride<span>Go</span> 🇮🇳</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#features">Features</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <div class="glass-card">
+
+        <h1>Ride<span>Go</span></h1>
+        <p class="quote">Connecting India, One Ride at a Time.</p>
+        <a href="signup.html" class="btn">Start Your Journey</a>
+    </div>
+</body>
+
+</html>

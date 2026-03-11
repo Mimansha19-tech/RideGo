@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RideGo - Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* STYLE SECTION */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=2071&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .auth-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            width: 380px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #f8c200;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #f8c200;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #e0b000;
+            transform: translateY(-2px);
+        }
+
+        .link-text {
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .link-text a {
+            color: #dba800;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        #otp-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"></div>
+
+    <div class="auth-card">
+        <h2 id="title">Join RideGo</h2>
+        <p id="subtitle">Fast, Affordable, Indian.</p>
+
+        <div id="details-section">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName" placeholder="e.g. Rahul Sharma">
+            </div>
+            <div class="input-group">
+                <label>Phone Number</label>
+                <input type="tel" id="phoneNumber" value="+91 " placeholder="+91 99999 99999">
+            </div>
+
+            <button class="btn-primary" onclick="sendMockOTP()">Get OTP</button>
+
+            <div class="link-text">
+                Already have an account? <a href="login.html">Log in here</a>
+            </div>
+        </div>
+
+        <div id="otp-section">
+            <div class="input-group">
+                <label>Enter OTP</label>
+                <input type="number" id="otpInput" placeholder="123456"
+                    style="letter-spacing: 5px; text-align: center;">
+            </div>
+            <button class="btn-primary" onclick="verifyMockOTP()">Verify & Sign Up</button>
+            <div class="link-text">
+                <a href="#" onclick="location.reload()">Wrong number?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SIMULATION MODE - NO FIREBASE NEEDED FOR DEMO
+
+        function sendMockOTP() {
+            const phone = document.getElementById("phoneNumber").value;
+            const name = document.getElementById("fullName").value;
+
+            if (name.length < 3) { alert("Please enter your name."); return; }
+            if (phone.length < 10) { alert("Please check phone number."); return; }
+
+            // Simulate network delay
+            const btn = document.querySelector("button");
+            btn.innerHTML = "Sending...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert("TEST MODE: OTP sent to " + phone + "\n\n(Use code: 123456)");
+
+                document.getElementById("details-section").style.display = "none";
+                document.getElementById("otp-section").style.display = "block";
+                document.getElementById("title").innerText = "Verify OTP";
+                document.getElementById("subtitle").innerText = `Sent to ${phone}`;
+            }, 1500);
+        }
+
+        function verifyMockOTP() {
+            const code = document.getElementById("otpInput").value;
+            const name = document.getElementById("fullName").value;
+
+            if (code === "123456") {
+                localStorage.setItem("ridego_username", name);
+                alert("🎉 Account Created! Welcome, " + name);
+                window.location.href = "ride.html";
+            } else {
+                alert("❌ Incorrect OTP. Try 123456");
+            }
+        }
+    </script>
+</body>
+
+</html>

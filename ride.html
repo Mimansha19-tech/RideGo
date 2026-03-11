@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RideGo - Final Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* CSS */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f5f6fa;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        header {
+            background-color: #f8c200;
+            color: #000;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .controls {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        .share-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #c8e6c9;
+        }
+
+        #map {
+            height: 300px;
+            width: 100%;
+        }
+
+        .result {
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* POPUP STYLE */
+        .driver-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            text-align: center;
+            border: 4px solid #f8c200;
+            width: 85%;
+        }
+
+        .driver-popup h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .driver-popup button {
+            margin-top: 15px;
+            background: #28a745;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>RideGo Fare Calculator</header>
+
+        <div class="controls">
+            <input id="pickup" type="text" placeholder="Current Location (e.g. Pune)" />
+            <input id="drop" type="text" placeholder="Destination (e.g. Mumbai)" />
+
+            <div class="share-option">
+                <input type="checkbox" id="shareRide">
+                <label for="shareRide"><b>Share Ride?</b> (Find drivers on route)</label>
+            </div>
+
+            <button onclick="calculateFare()">1. Calculate Fare</button>
+            <div id="result" class="result"></div>
+            <button id="confirmBtn" onclick="confirmRide()"
+                style="display:none; background-color: #f8c200; color: black;">2. Confirm Ride</button>
+        </div>
+
+        <div id="map"></div>
+        <footer style="text-align:center; padding:10px; font-size:12px; color:#666;">© 2025 RideGo Final</footer>
+    </div>
+
+    <div id="driverAlert" class="driver-popup">
+        <h3>🚖 NEW PASSENGER!</h3>
+        <p id="alertMsg" style="font-size: 18px;">Someone is nearby.</p>
+        <button onclick="acceptPassenger()">✅ Accept Request</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([18.5204, 73.8567], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        let pickupCoords = null;
+        let dropCoords = null;
+        let routePolyline = null;
+
+        async function geocode(query) {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+            const res = await fetch(url);
+            const data = await res.json();
+            return data.length ? [parseFloat(data[0].lat), parseFloat(data[0].lon)] : null;
+        }
+
+        async function calculateFare() {
+            const pickup = document.getElementById("pickup").value;
+            const drop = document.getElementById("drop").value;
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Calculating route...";
+
+            pickupCoords = await geocode(pickup);
+            dropCoords = await geocode(drop);
+
+            if (!pickupCoords || !dropCoords) { resultDiv.innerHTML = "❌ Location not found."; return; }
+
+            if (routePolyline) map.removeLayer(routePolyline);
+            L.marker(pickupCoords).addTo(map).bindPopup("Pickup").openPopup();
+            L.marker(dropCoords).addTo(map).bindPopup("Drop");
+
+            const group = new L.featureGroup([L.marker(pickupCoords), L.marker(dropCoords)]);
+            map.fitBounds(group.getBounds().pad(0.2));
+
+            // Calculate Distance & Price
+            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropCoords[1]},${dropCoords[0]}?overview=false`;
+            const res = await fetch(osrmUrl);
+            const data = await res.json();
+
+            if (data.routes && data.routes.length > 0) {
+                const km = (data.routes[0].distance / 1000).toFixed(2);
+                const price = Math.round(km * 15);
+                resultDiv.innerHTML = `<b>Distance:</b> ${km} km <br> <b>Fare:</b> ₹${price}`;
+                document.getElementById("confirmBtn").style.display = "block";
+            } else {
+                resultDiv.innerHTML = "❌ No route found.";
+            }
+        }
+
+        async function confirmRide() {
+            const pickup = document.getElementById("pickup").value;
+            const drop = document.getElementById("drop").value;
+            const isShared = document.getElementById("shareRide").checked;
+            const resultDiv = document.getElementById("result");
+
+            resultDiv.innerHTML = "🔄 Connecting to server...";
+            document.getElementById("confirmBtn").style.display = "none";
+
+            try {
+                const response = await fetch("http://localhost:3000/book-ride", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ pickup, drop, pickupCoords, dropCoords, isShared })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.isPooled) {
+                        // PASSENGER SCREEN
+                        resultDiv.innerHTML = `<div style="background:#d4edda; padding:10px; border-radius:8px;">${data.message}</div>`;
+                    } else {
+                        // DRIVER SCREEN
+                        resultDiv.innerHTML = `<div style="background:#fff3cd; padding:10px; border-radius:8px;">✅ You are the Driver.<br>Waiting for requests...</div>`;
+                        // Start checking for messages!
+                        startListeningForpassengers();
+                    }
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        // --- THE IMPORTANT PART: LISTENER ---
+        function startListeningForpassengers() {
+            console.log("Started listening for passengers...");
+            setInterval(async () => {
+                try {
+                    const res = await fetch("http://localhost:3000/check-updates");
+                    const update = await res.json();
+
+                    if (update.hasUpdate) {
+                        // 1. SHOW BROWSER ALERT (Impossible to miss)
+                        alert("🔔 DING DING! New Passenger Found!");
+
+                        // 2. SHOW NICE POPUP
+                        document.getElementById("alertMsg").innerText = update.data.message;
+                        document.getElementById("driverAlert").style.display = "block";
+                    }
+                } catch (e) { console.log("Polling..."); }
+            }, 3000); // Checks every 3 seconds
+        }
+
+        function acceptPassenger() {
+            document.getElementById("driverAlert").style.display = "none";
+            document.getElementById("result").innerHTML = "<b>🚀 ACCEPTED! Pick up the passenger.</b>";
+        }
+    </script>
+</body>
+
+</html>
