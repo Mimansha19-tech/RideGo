@@ -2,10 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const turf = require('@turf/turf');
+const path = require('path');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve the RideGo frontend from the same Vercel deployment.
+app.use(express.static(__dirname));
 
 // --- DATABASE ---
 let activeRides = [];
