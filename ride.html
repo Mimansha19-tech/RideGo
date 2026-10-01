@@ -210,7 +210,7 @@
             document.getElementById("confirmBtn").style.display = "none";
 
             try {
-                const response = await fetch("http://localhost:3000/book-ride", {
+                const response = await fetch("/book-ride", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ pickup, drop, pickupCoords, dropCoords, isShared })
@@ -237,7 +237,7 @@
             console.log("Started listening for passengers...");
             setInterval(async () => {
                 try {
-                    const res = await fetch("http://localhost:3000/check-updates");
+                    const res = await fetch("/check-updates");
                     const update = await res.json();
 
                     if (update.hasUpdate) {
