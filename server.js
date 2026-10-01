@@ -11,6 +11,11 @@ app.use(express.json());
 // Serve the RideGo frontend from the same Vercel deployment.
 app.use(express.static(__dirname));
 
+// Vercel entry page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // --- DATABASE ---
 let activeRides = [];
 let driverNotification = null; // The "Mailbox" for the driver
